@@ -5,25 +5,26 @@ import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from collections.abc import Iterable
 
-def display_images(images, *, mean_std=(0.1307, 0.3081), cmap='gray'):
-    """Display MNIST (or generic) images.
+def display_images(images, *, mean_std=(0.1307, 0.3081), cmap='gray', predictions=None):
+    """Display MNIST (or generic) images with optional predictions.
 
     Accepts:
       - A single tensor / numpy array (C,H,W) or (H,W) or (H,W,1)
       - A batch tensor (N,C,H,W)
       - A list/tuple of tensors / numpy arrays
       - A list/tuple of (image, label) pairs
+      - A generator/iterable yielding any of the above
 
     Parameters
     ----------
     images : various
-        See above.
+        Input images / (image,label) pairs.
     mean_std : (float, float) | None
         Mean & std used for normalization (default MNIST). If None, no un-normalization.
-    n_max : int | None
-        If provided and images is a batch/list, limit how many are shown.
     cmap : str
         Matplotlib colormap to use for single-channel images.
+    predictions : list[int] | tuple[int] | None
+        Optional predicted labels; must match number of images. Correct predictions green, incorrect red.
     """
 
     # If a batch tensor (N,C,H,W) provided, split into list
@@ -40,6 +41,12 @@ def display_images(images, *, mean_std=(0.1307, 0.3081), cmap='gray'):
             images = [images]
 
     n_images = len(images)
+    if predictions is not None:
+        if not isinstance(predictions, (list, tuple)):
+            raise TypeError("predictions must be a list or tuple of ints")
+        if len(predictions) != n_images:
+            raise ValueError(f"Number of predictions ({len(predictions)}) does not match number of images ({n_images})")
+
     cols = 1 if n_images == 1 else ceil(sqrt(n_images))
     rows = 1 if n_images == 1 else int((n_images + cols - 1) // cols)
     fig, axes = plt.subplots(rows, cols, figsize=(cols * 2.2, rows * 2.2))
@@ -56,7 +63,6 @@ def display_images(images, *, mean_std=(0.1307, 0.3081), cmap='gray'):
         # Tensor -> numpy
         if isinstance(image, torch.Tensor):
             image = image.detach().cpu()
-            # Unnormalize single-channel if stats provided and shape matches
             if mean_std is not None:
                 if image.ndim == 3 and image.shape[0] == 1:  # (1,H,W)
                     image = image * mnist_std + mnist_mean
@@ -64,28 +70,31 @@ def display_images(images, *, mean_std=(0.1307, 0.3081), cmap='gray'):
                     image = image * mnist_std + mnist_mean
             image = image.numpy()
 
-        # Proceed only if numpy array
         if isinstance(image, np.ndarray):
-            # Handle channel ordering
-            if image.ndim == 3 and image.shape[0] in (1, 3):  # CHW -> HWC
+            if image.ndim == 3 and image.shape[0] in (1, 3):
                 image = np.transpose(image, (1, 2, 0))
-            if image.ndim == 3 and image.shape[2] == 1:  # HWC with 1 channel
+            if image.ndim == 3 and image.shape[2] == 1:
                 image = image.squeeze(2)
-
-            # Clip for safety (after un-normalization)
             if image.ndim == 2:
                 disp_img = np.clip(image, 0, 1)
                 axes[i].imshow(disp_img, cmap=cmap)
             else:
                 disp_img = np.clip(image, 0, 1)
                 axes[i].imshow(disp_img)
-        else:  # Fallback: show nothing / placeholder
+        else:
             axes[i].text(0.5, 0.5, 'N/A', ha='center', va='center')
         axes[i].axis('off')
-        if label is not None:
-            axes[i].set_title(str(label), fontsize=10)
 
-    # Hide unused axes
+        pred_label = None if predictions is None else predictions[i]
+        if label is not None:
+            axes[i].set_title(str(label), fontsize=10, pad=4)
+        if pred_label is not None:
+            correct = (label is not None) and (pred_label == label)
+            color = 'green' if correct else 'red'
+            y_offset = -0.22 if label is not None else -0.08
+            axes[i].text(0.5, y_offset, f"Predicted: {pred_label}", transform=axes[i].transAxes,
+                         ha='center', va='top', fontsize=9, color=color)
+
     for j in range(n_images, len(axes)):
         axes[j].axis('off')
 
