@@ -41,15 +41,24 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Train model & validate
 n_epochs = 10
-#train_accuracies, train_losses, val_accuracies, val_losses = train_model(model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer, n_epochs=n_epochs)
+train_accuracies, train_losses, val_accuracies, val_losses = train_model(model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer, n_epochs=n_epochs)
 if os.path.exists("best_model.pth"):
     model.load_state_dict(torch.load("best_model.pth"))
 else:
     raise FileNotFoundError("No pre-trained model found.")
 test_accuracy, test_loss = test_model(model, test_loader=test_loader, criterion=criterion)
 
+# Predict n_pred values
+n_pred = 16
+model.eval()
+with torch.no_grad():
+    sample_images = [test_dataset[i][0] for i in range(n_pred)]
+    sample_images = torch.stack(sample_images)
+    outputs = model(sample_images)
+    _, predictions = torch.max(outputs, 1)
+predictions = predictions.tolist()
+
 # Visualize results
-print(f"Test loss: {test_loss:.4f}, Test accuracy: {test_accuracy:.4f}")
-#plot_loss_accuracy(train_losses, val_losses, train_accuracies, val_accuracies)
+plot_loss_accuracy(train_losses, val_losses, train_accuracies, val_accuracies)
 plot_confusion_matrix(model, test_loader)
-display_images(test_dataset[i] for i in range(12))
+display_images([test_dataset[i] for i in range(n_pred)], predictions=predictions)
