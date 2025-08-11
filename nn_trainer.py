@@ -12,6 +12,7 @@ def train_model(model, train_loader, criterion, optimizer, n_epochs: int = 10, v
     train_loss_list = []
     val_accuracy_list = []
     val_loss_list = []
+    best_val_acc: float = 0.0
 
     for epoch in range(n_epochs):
         model.train()
@@ -74,6 +75,10 @@ def train_model(model, train_loader, criterion, optimizer, n_epochs: int = 10, v
             print(
                 f"Epoch [{epoch+1}/{n_epochs}], Train loss: {avg_train_loss:.4f}, Train Acc: {train_accuracy:.4f}"
             )
+        if val_accuracy > best_val_acc:
+            best_val_acc = val_accuracy
+            torch.save(model.state_dict(), 'best_model.pth')
+            print(f"Saved best model with validation accuracy: {best_val_acc:.4f}")
 
     if val_loader is None:
         val_accuracy_list = None
