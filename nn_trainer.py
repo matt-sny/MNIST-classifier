@@ -82,3 +82,17 @@ def train_model(model, train_loader, criterion, optimizer, n_epochs: int = 10, v
     total_time = time.time() - start_time
     print(f"Training complete. Total training time: {total_time//60:.0f} minutes {total_time%60:.1f} seconds")
     return train_accuracy_list, train_loss_list, val_accuracy_list, val_loss_list
+
+def test_model(model, test_loader, criterion):
+    model.eval()
+    running_loss, correct = 0.0, 0
+    with torch.no_grad():
+        for images, labels in test_loader:
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            running_loss += loss.item() * images.size(0)
+            correct += (outputs.argmax(1) == labels).sum().item()
+
+    test_accuracy = correct / len(test_loader.dataset)
+    test_loss = running_loss / len(test_loader.dataset)
+    return test_accuracy, test_loss
