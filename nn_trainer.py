@@ -100,4 +100,5 @@ def test_model(model, test_loader, criterion):
 
     test_accuracy = correct / len(test_loader.dataset)
     test_loss = running_loss / len(test_loader.dataset)
+    print(f"Test loss: {test_loss:.4f}, Test accuracy: {test_accuracy:.4f}")
     return test_accuracy, test_loss
