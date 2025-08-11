@@ -49,16 +49,22 @@ else:
 test_accuracy, test_loss = test_model(model, test_loader=test_loader, criterion=criterion)
 
 # Predict n_pred values
-n_pred = 16
+n_pred = len(test_dataset)
 model.eval()
 with torch.no_grad():
     sample_images = [test_dataset[i][0] for i in range(n_pred)]
+    true_labels = [test_dataset[i][1] for i in range(n_pred)]
     sample_images = torch.stack(sample_images)
     outputs = model(sample_images)
     _, predictions = torch.max(outputs, 1)
 predictions = predictions.tolist()
 
+wrong_predictions = [pred != true for pred, true in zip(predictions, true_labels)]
+wrong_indices = [i for i, is_wrong in enumerate(wrong_predictions) if is_wrong]
+wrong_guesses = [predictions[i] for i in wrong_indices]
+print(f"Total samples: {len(predictions)} | Misclassified: {len(wrong_indices)}")
+
 # Visualize results
 plot_loss_accuracy(train_losses, val_losses, train_accuracies, val_accuracies)
 plot_confusion_matrix(model, test_loader)
-display_images([test_dataset[i] for i in range(n_pred)], predictions=predictions)
+display_images([test_dataset[i] for i in wrong_indices[:20]], predictions=wrong_guesses[:20])
