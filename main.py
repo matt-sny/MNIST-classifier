@@ -8,6 +8,7 @@ import numpy as np
 from nn_classes import SimpleCNN
 from data_visualizer import plot_loss_accuracy, plot_confusion_matrix, display_images
 from nn_trainer import train_model, test_model
+import os
 
 # Set random seed
 seed = 42
@@ -40,12 +41,15 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Train model & validate
 n_epochs = 10
-train_accuracies, train_losses, val_accuracies, val_losses = train_model(model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer, n_epochs=n_epochs)
-model.load_state_dict(torch.load("best_model.pth"))
+#train_accuracies, train_losses, val_accuracies, val_losses = train_model(model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer, n_epochs=n_epochs)
+if os.path.exists("best_model.pth"):
+    model.load_state_dict(torch.load("best_model.pth"))
+else:
+    raise FileNotFoundError("No pre-trained model found.")
 test_accuracy, test_loss = test_model(model, test_loader=test_loader, criterion=criterion)
 
 # Visualize results
 print(f"Test loss: {test_loss:.4f}, Test accuracy: {test_accuracy:.4f}")
-plot_loss_accuracy(train_losses, val_losses, train_accuracies, val_accuracies)
+#plot_loss_accuracy(train_losses, val_losses, train_accuracies, val_accuracies)
 plot_confusion_matrix(model, test_loader)
-#display_images(val_dataset[139])
+display_images(test_dataset[i] for i in range(12))
