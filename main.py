@@ -32,10 +32,8 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 val_loader = DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=False)
 
-# Create model
+# Define model, loss function and optimizer
 model = SimpleCNN()
-
-# Define loss function and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -59,6 +57,7 @@ with torch.no_grad():
     _, predictions = torch.max(outputs, 1)
 predictions = predictions.tolist()
 
+# Get wrong predictions
 wrong_predictions = [pred != true for pred, true in zip(predictions, true_labels)]
 wrong_indices = [i for i, is_wrong in enumerate(wrong_predictions) if is_wrong]
 wrong_guesses = [predictions[i] for i in wrong_indices]
