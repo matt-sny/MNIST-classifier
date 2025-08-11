@@ -38,12 +38,12 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Train model & validate
-n_epochs = 10
-#train_accuracies, train_losses, val_accuracies, val_losses = train_model(model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer, n_epochs=n_epochs)
+n_epochs = 5
+train_accuracies, train_losses, val_accuracies, val_losses = train_model(model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer, n_epochs=n_epochs)
 
 # Visualize results
-print(f"Train dataset size: {len(train_dataset)} ({len(train_loader)} batches each of up to {batch_size} images each)")
-print(f"Test dataset size: {len(test_dataset)} ({len(test_loader)} batches each of up to {batch_size} images each)")
-print(f"Validation dataset size: {len(val_dataset)} ({len(val_loader)} batches each of up to {batch_size} images each)")
-#plot_loss_accuracy(train_losses, val_losses, train_accuracies, val_accuracies)
+#print(f"Train dataset size: {len(train_dataset)} ({len(train_loader)} batches each of up to {batch_size} images each)")
+#print(f"Test dataset size: {len(test_dataset)} ({len(test_loader)} batches each of up to {batch_size} images each)")
+#print(f"Validation dataset size: {len(val_dataset)} ({len(val_loader)} batches each of up to {batch_size} images each)")
+plot_loss_accuracy(train_losses, val_losses, train_accuracies, val_accuracies)
 #display_images(val_dataset[139])
