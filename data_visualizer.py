@@ -26,6 +26,9 @@ def display_images(images, *, mean_std=(0.1307, 0.3081), cmap='gray', prediction
     predictions : list[int] | tuple[int] | None
         Optional predicted labels; must match number of images. Correct predictions green, incorrect red.
     """
+    if not images:
+        print("No images to display.")
+        return
 
     # If a batch tensor (N,C,H,W) provided, split into list
     if isinstance(images, torch.Tensor) and images.ndim == 4:
