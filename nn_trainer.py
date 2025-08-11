@@ -21,20 +21,16 @@ def train_model(model, train_loader, criterion, optimizer, n_epochs: int = 10, v
 
         for images, labels in train_loader:
 
-            labels_mc = labels.long()
-
             optimizer.zero_grad()
             outputs = model(images)
-            loss = criterion(outputs, labels_mc)
-
-            # Backward pass
+            loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
 
             # Metrics
             preds = outputs.argmax(dim=1)
-            correct = (preds == labels_mc).sum().item()
-            batch_size = labels_mc.size(0)
+            correct = (preds == labels).sum().item()
+            batch_size = labels.size(0)
 
             total_train_loss += loss.item() * batch_size
             train_correct += correct
@@ -54,13 +50,12 @@ def train_model(model, train_loader, criterion, optimizer, n_epochs: int = 10, v
 
             with torch.no_grad():
                 for images, labels in val_loader:
-                    labels_mc = labels.long()
                     outputs = model(images)
-                    loss = criterion(outputs, labels_mc)
+                    loss = criterion(outputs, labels)
 
                     preds = outputs.argmax(dim=1)
-                    correct = (preds == labels_mc).sum().item()
-                    batch_size = labels_mc.size(0)
+                    correct = (preds == labels).sum().item()
+                    batch_size = labels.size(0)
 
                     total_val_loss += loss.item() * batch_size
                     val_correct += correct
