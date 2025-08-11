@@ -1,7 +1,9 @@
+from pyexpat import model
 import matplotlib.pyplot as plt
 from math import sqrt, ceil
 import torch
 import numpy as np
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 def display_images(images, label_categories=None):
     """
@@ -9,9 +11,6 @@ def display_images(images, label_categories=None):
     Each image can be a tensor, numpy array, or (image, label) tuple.
     If label_categories is provided, display the vegetable name for each label.
     """
-    import torch
-    import numpy as np
-    from math import sqrt, ceil
 
     # Accept a single image or a list of images
     if not isinstance(images, (list, tuple)) or (isinstance(images, tuple) and hasattr(images[0], 'shape')):
@@ -90,3 +89,21 @@ def plot_loss_accuracy(train_losses, val_losses, train_accuracies, val_accuracie
     plt.title('Training and Validation Loss/Accuracy')
     plt.show()
     
+def plot_confusion_matrix(model, test_loader):
+    all_preds = []
+    all_labels = []
+    
+    model.eval()
+    with torch.no_grad():
+        for images, labels in test_loader:
+            outputs = model(images)
+            preds = outputs.argmax(dim=1)
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
+    cm = confusion_matrix(all_labels, all_preds)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[str(i) for i in range(10)])
+    fig, ax = plt.subplots(figsize=(8,8))
+    disp.plot(ax=ax, cmap='Blues')
+    plt.title("MNIST Test Set Confusion Matrix")
+    plt.show()
