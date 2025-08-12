@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mnist-cnn-classifier"
+version = "0.1.0"
+description = "A simple CNN built from scratch in PyTorch to classify MNIST handwritten digits."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Matthew Snyman" }
+]
+
+# Dependencies needed to run the project
+dependencies = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "numpy",
+    "matplotlib",
+    "scikit-learn"
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter",
+    "notebook"
+]
