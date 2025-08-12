@@ -1,7 +1,6 @@
 import torch
 import time
 
-
 def train_model(model, train_loader, criterion, optimizer, n_epochs: int = 10, val_loader=None):
     """
     Multi-class classifier trainer.
@@ -20,6 +19,7 @@ def train_model(model, train_loader, criterion, optimizer, n_epochs: int = 10, v
         total_train_loss: float = 0.0
         total_train_samples: int = 0
 
+        # Training loop
         for images, labels in train_loader:
 
             optimizer.zero_grad()

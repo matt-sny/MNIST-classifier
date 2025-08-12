@@ -110,7 +110,6 @@ def plot_loss_accuracy(train_losses, val_losses, train_accuracies, val_accuracie
     fig, ax1 = plt.subplots(figsize=(10, 5))
 
     ax1.set_xlabel('Epochs')
-    #ax1.grid(True, which='both')
     ax1.set_ylabel('Loss', color='tab:blue')
     ax1.plot(epochs, train_losses, label='Train Loss', color='tab:blue', marker='o')
     ax1.plot(epochs, val_losses, label='Validation Loss', color='tab:cyan', marker='o')
