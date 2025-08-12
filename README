@@ -1,0 +1,86 @@
+# Handwritten Digit Classification with CNN
+
+## Project Overview
+This project implements a Convolutional Neural Network (CNN) from scratch in PyTorch to classify handwritten digits (0–9) from the MNIST dataset.  
+It demonstrates data preprocessing, model design, training/validation, evaluation, and performance visualization.
+
+---
+
+## Dataset
+- **Source:** [MNIST](http://yann.lecun.com/exdb/mnist/)  
+- **Size:** 70,000 grayscale images (28×28 pixels)  
+- **Split:** 50,000 training / 10,000 validation / 10,000 test  
+- **Preprocessing:** Normalized to [0, 1] and converted to tensors  
+
+---
+
+## Model Architecture
+1. **Conv1:** 1 input channel → 32 output channels, 3×3 kernel, padding=1, ReLU  
+2. **Conv2:** 32 input channels → 64 output channels, 3×3 kernel, padding=1, ReLU  
+3. **Max Pooling:** 2×2, stride=2 → reduces image to 14×14  
+4. **FC1:** 64×14×14 inputs → 128 units, ReLU, Dropout (p=0.25)  
+5. **FC2:** 128 → 10 outputs (digit classes)  
+
+---
+
+## Training
+- **Loss:** Cross-Entropy  
+- **Optimizer:** Adam  
+- **Batch Size:** 64  
+- **Learning Rate:** 0.001  
+- **Epochs:** 10  
+- **Hardware:** Intel Core i7 CPU (~10 min training time)  
+
+---
+
+## Results
+| Metric       | Accuracy |
+|--------------|----------|
+| Train        | 99.7%    |
+| Validation   | 98.9%    |
+| Test         | 99.1%    |
+
+- Strong generalization with no signs of overfitting.  
+- Some misclassifications occurred on ambiguous digits.
+
+---
+
+## Usage
+
+### 1. Download and prepare dataset
+import torchvision.transforms as transforms
+from torchvision.datasets import MNIST
+from torch.utils.data import DataLoader, random_split
+
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.1307,), (0.3081,))
+])
+
+train_dataset_full = MNIST(root='./data', train=True, transform=transform, download=True)
+train_dataset, val_dataset = random_split(train_dataset_full, [50000, 10000])
+test_dataset = MNIST(root='./data', train=False, transform=transform, download=True)
+
+train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=64, shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+
+### 2. Load trained model
+import torch
+from nn_classes import SimpleCNN
+
+model = SimpleCNN()
+model.load_state_dict(torch.load("best_model.pth"))
+model.eval()
+
+### 3. Run predictions on new data
+import torch
+
+model.eval()
+with torch.no_grad():
+    sample_img, _ = test_dataset[0]
+    sample_img = sample_img.unsqueeze(0)  # Add batch dimension
+    output = model(sample_img)
+    predicted_class = output.argmax(dim=1).item()
+
+print(f"Predicted digit: {predicted_class}")
